@@ -141,8 +141,9 @@ def is_admin():
         return False
 
 def openFirewallPort():
+        port = getPort()
         p = subprocess.Popen(["powershell.exe", 
-              "netsh advfirewall firewall add rule name=\"myapp\" dir=in action=allow protocol=TCP localport=6699"], 
+              "netsh advfirewall firewall add rule name=\"myapp\" dir=in action=allow protocol=TCP localport="+str(port)], 
               stdout=sys.stdout)
         p.communicate()
 
