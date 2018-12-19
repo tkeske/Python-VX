@@ -7,6 +7,7 @@
 
 import sys
 import os
+import subprocess
 from PyQt5.QtWidgets import QWidget,  QPushButton, QDesktopWidget, QApplication
 
 
@@ -19,8 +20,7 @@ class Example(QWidget):
 
     def spawnSocksProxy(self):
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        os.system("proxifier_server.exe")
+        pid = subprocess.Popen("proxifier_server.exe").pid
     
         
         

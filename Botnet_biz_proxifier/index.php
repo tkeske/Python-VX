@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * PORT ASSIGNER and MASTER SERVER SPAWNER
+ *
+ * @author Tomáš Keske
+ * @simce 19.12.2018
+ */
+
 // Connect to database server and database
 $mysqli = new mysqli();
 
