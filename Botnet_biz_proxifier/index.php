@@ -29,7 +29,7 @@ function outputQueryResults($mysqli) {
 	  exit;
 	}
 
-	// If zero rows....
+	// if entry does not exist yet
 	if ($result->num_rows === 0) {
 	    
 	    $sql2 = "SELECT * FROM ports WHERE id=(SELECT MAX(id) FROM ports)";
@@ -71,10 +71,10 @@ function outputQueryResults($mysqli) {
 		return $ret;
 	}
 
-	//output data in HTML table 
+	//return information that exists
 	while ($row = $result->fetch_assoc()) {     
 
-	   echo $row['port']; 
+	   echo $row['port'].":".$row["connection_port"]; 
 
 	}
 }
@@ -90,8 +90,8 @@ $portArray = outputQueryResults($mysqli);
 // close database connection 
 mysqli_close($mysqli);
 
+//spawn the master server
 spawnTheMaster($portArray);
 
- 
 
 ?>
