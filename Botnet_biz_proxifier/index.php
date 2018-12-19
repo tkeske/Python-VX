@@ -51,7 +51,7 @@ function outputQueryResults($mysqli) {
 		}
 
 		$port = intval($port);
-		$port = $port++;
+		$port = $port+1;
 
 		$sql3 = "INSERT INTO ports (ip, port) VALUES ('".$ip."','".$port."')";
 
@@ -65,11 +65,7 @@ function outputQueryResults($mysqli) {
 		  exit;
 		}
 
-		while ($row = $xx->fetch_assoc()) {     
-
-		   var_dump($row); 
-
-		}
+		echo $port;
 	}
 
 	//output data in HTML table 
