@@ -91,7 +91,6 @@ $portArray = outputQueryResults($mysqli);
 // close database connection 
 mysqli_close($mysqli);
 
-echo shell_exec("whoami");
 //spawn the master server
 spawnTheMaster($portArray);
 
