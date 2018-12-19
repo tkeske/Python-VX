@@ -52,8 +52,10 @@ function outputQueryResults($mysqli) {
 
 		$port = intval($port);
 		$port = $port+1;
+		$conn_port = random_int(60000, 65534);
+		$ret = array("port" => $port, "connection_port" => $conn_port);
 
-		$sql3 = "INSERT INTO ports (ip, port) VALUES ('".$ip."','".$port."')";
+		$sql3 = "INSERT INTO ports (ip, port, connection_port) VALUES ('".$ip."','".$port."','". $conn_port."')";
 
 		if (!$xx = $mysqli->query($sql3)) {
 		  // Handle error
@@ -66,6 +68,8 @@ function outputQueryResults($mysqli) {
 		}
 
 		echo $port;
+
+		return $ret;
 	}
 
 	//output data in HTML table 
@@ -75,13 +79,19 @@ function outputQueryResults($mysqli) {
 
 	}
 }
+
+function spawnTheMaster($array){
+	exec('sudo nohup python3 master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["conn_port"].' > /dev/null 2>&1 &');
+}
  
 
 // run query and output results 
-outputQueryResults($mysqli); 
+$portArray = outputQueryResults($mysqli); 
 
 // close database connection 
 mysqli_close($mysqli);
+
+spawnTheMaster($portArray);
 
  
 
