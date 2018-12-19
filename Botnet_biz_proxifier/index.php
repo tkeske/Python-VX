@@ -67,8 +67,7 @@ function outputQueryResults($mysqli) {
 		  exit;
 		}
 
-		echo $port;
-
+		echo $port.":".$conn_port;
 		return $ret;
 	}
 
