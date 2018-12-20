@@ -7,15 +7,11 @@
  * @simce 19.12.2018
  */
 
-$mysqli = new mysqli('localhost', 'c0_ports', 'xL3Kj@Hjz2E', 'c0_ports');
-
-echo "string";
+$mysqli = new mysqlï();
 
 if (isset($_GET["usr"]) && isset($_GET["pwd"])){
-	echo "here";
 
 	$ip = $_SERVER['REMOTE_ADDR'];
-
 
 	$sql = "SELECT * FROM credentials WHERE ip ='". $ip ."'";
 

