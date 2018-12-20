@@ -8,7 +8,7 @@
  */
 
 // Connect to database server and database
-$mysqli = new mysqli();
+$mysqli =  new mysqli();
 
 // If connection attempt failed, let us know
 if ($mysqli->connect_errno) {
@@ -81,7 +81,9 @@ function outputQueryResults($mysqli) {
 	//return information that exists
 	while ($row = $result->fetch_assoc()) {     
 
+	   $ret = array("port" => $row['port'], "connection_port" => $row["connection_port"]);
 	   echo $row['port'].":".$row["connection_port"]; 
+	   return $ret;
 
 	}
 }
