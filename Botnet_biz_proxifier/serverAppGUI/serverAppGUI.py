@@ -8,24 +8,71 @@
 import sys
 import os
 import subprocess
-from PyQt5.QtWidgets import QWidget,  QPushButton, QDesktopWidget, QApplication
+import psutil
+import time
+import datetime
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QWidget,  QPushButton, QDesktopWidget, QApplication, QLabel
 
+
+class TimeThread(QThread):
+
+
+    def __init__(self, timelabel, app):
+        QThread.__init__(self)
+        self.timelabel = timelabel
+        self.app = app
+
+    def __del__(self):
+        self.wait()
+
+    def timeElapsed(self):
+        start = time.time()
+
+        while 1:
+            end = time.time()
+            hours, rem = divmod(end-start, 3600)
+            minutes, seconds = divmod(rem, 60)
+            time.sleep(0.5)
+            self.timelabel.setText("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
+            self.app.processEvents()
+
+    def run(self):
+        self.timeElapsed()
+        self.sleep(2)
 
 class Spawner(QWidget):
+
+    pids = []
+
     
-    def __init__(self):
+    def __init__(self, app):
         super().__init__()
-        
+        self.app = app
         self.initUI()
 
     def spawnSocksProxy(self):
 
         pid = subprocess.Popen("proxifier_server.exe").pid
+        self.pids.append(pid)
 
     def spawnSlaverFowarder(self):
 
         pid = subprocess.Popen("slaver.exe").pid
-    
+        self.pids.append(pid)
+
+    def eliminateProccess(self):
+
+        for pid in self.pids:
+
+            try: 
+                p = psutil.Process(pid)
+                p.terminate()
+            except:
+                print("Proccess already terminated")
+
+        QApplication.instance().quit
         
         
     def initUI(self):
@@ -40,20 +87,32 @@ class Spawner(QWidget):
         slaverbtn.resize(slaverbtn.sizeHint())
         slaverbtn.move(50, 100) 
 
-        minbtn = QPushButton('Minimize to system tray', self)
-        minbtn.clicked.connect(QApplication.instance().quit)
-        minbtn.resize(minbtn.sizeHint())
-        minbtn.move(50, 150)       
-
-        exitbtn = QPushButton('Terminate Server & Application', self)
-        exitbtn.clicked.connect(QApplication.instance().quit)
+        exitbtn = QPushButton('Terminate Servers & Application', self)
+        exitbtn.clicked.connect(self.eliminateProccess)
         exitbtn.resize(exitbtn.sizeHint())
-        exitbtn.move(50, 200)              
+        exitbtn.move(50, 150) 
+
+        l1 = QLabel("Čas běhu aplikace", self)
+        l1.setAlignment(Qt.AlignCenter) 
+        l1.resize(255, 400)  
+
+
+        timelabel = QLabel("",self)
+        timelabel.setAlignment(Qt.AlignCenter) 
+        timelabel.resize(255,470) 
+
+        self.get_thread = TimeThread(timelabel, self.app)
+        self.get_thread.start()
+
+
+        l2 = QLabel("Botnet.biz Spawner ©2018", self)
+        l2.setAlignment(Qt.AlignCenter) 
+        l2.resize(255, 540)     
         
-        self.resize(300, 300)
+        self.resize(250, 310)
         self.center()
         
-        self.setWindowTitle('Botnet.biz Spawner')    
+        self.setWindowTitle('Botnet.biz Spawner ©2018')    
         self.show()
 
     
@@ -70,5 +129,5 @@ class Spawner(QWidget):
 if __name__ == '__main__':
     
     app = QApplication(sys.argv)
-    ex = Spawner()
+    ex = Spawner(app)
     sys.exit(app.exec_())
