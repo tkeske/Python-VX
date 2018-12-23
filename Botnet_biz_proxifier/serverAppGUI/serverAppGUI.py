@@ -10,47 +10,14 @@ import os
 import subprocess
 import time
 import datetime
+import psutil
+import urllib.request
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-
-class WorkerSignals(QObject):
-
-    finished = pyqtSignal()
-    error = pyqtSignal(tuple)
-    result = pyqtSignal(object)
-    progress = pyqtSignal(int)
-
-
-class Worker(QRunnable):
-
-    def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
-
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = WorkerSignals()
-
-        self.kwargs['progress_callback'] = self.signals.progress
-
-    @pyqtSlot()
-    def run(self):
-
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except:
-            traceback.print_exc()
-            exctype, value = sys.exc_info()[:2]
-            self.signals.error.emit((exctype, value, traceback.format_exc()))
-        else:
-            self.signals.result.emit(result)
-        finally:
-            self.signals.finished.emit()
-
-
+cpLocation = "http://ports.botnet.biz/"
 
 class Spawner(QWidget):
 
@@ -69,7 +36,7 @@ class Spawner(QWidget):
         slaverbtn.resize(slaverbtn.sizeHint())
         slaverbtn.move(50, 100)
 
-        exitbtn = QPushButton('Terminate Servers & Application')
+        exitbtn = QPushButton('Terminate entire Application')
         exitbtn.clicked.connect(self.eliminateProccess)
         exitbtn.resize(exitbtn.sizeHint())
         exitbtn.move(50, 150) 
@@ -80,6 +47,8 @@ class Spawner(QWidget):
         l4 = QLabel()
         l5 = QLabel()
         self.l6 = QLabel()
+        self.l7 = QLabel()
+        self.l8 = QLabel()
 
         l1.setText("Menu:")
         l2.setText("Čas běhu aplikace:")
@@ -87,6 +56,10 @@ class Spawner(QWidget):
         l4.setText("")
         l5.setText("Author: Tomáš Keske - ver. 0.1")
         self.l6.setText("")
+        self.l7.setText("SOCKS server: Offline")
+        self.l7.setStyleSheet("color: red")
+        self.l8.setText("Gateway connection: Offline")
+        self.l8.setStyleSheet("color: red")
 
         l1.setAlignment(Qt.AlignCenter)
         l2.setAlignment(Qt.AlignCenter)
@@ -94,7 +67,9 @@ class Spawner(QWidget):
         l4.setAlignment(Qt.AlignCenter)
         l5.setAlignment(Qt.AlignCenter)
         self.l6.setAlignment(Qt.AlignCenter)
-        
+        self.l7.setAlignment(Qt.AlignCenter)
+        self.l8.setAlignment(Qt.AlignCenter)
+
         form = QFormLayout()
        
         form.addRow(l1)
@@ -106,6 +81,10 @@ class Spawner(QWidget):
         form.addWidget(exitbtn)
         form.addWidget(l4)
         form.addWidget(l4)
+        form.addWidget(self.l7)
+        form.addWidget(l4)
+        form.addWidget(self.l8)
+        form.addWidget(l4)
         form.addWidget(l2)
         form.addWidget(l4)
         form.addWidget(self.l6)
@@ -115,41 +94,45 @@ class Spawner(QWidget):
         form.addWidget(l3)
 
         self.setLayout(form)
-        self.resize(250, 310)
+        self.resize(250, 350)
         self.setWindowTitle('Botnet.biz Spawner ©2018') 
         self.show()
 
-        self.threadpool = QThreadPool()
+        
         self.timer = QTimer()
         self.startTime = time.time()
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.recurring_timer)
         self.timer.start()
 
-    def progress_fn(self, n):
-        print("%d%% done" % n)
-
-    def execute_this_fn(self, progress_callback):
-        for n in range(0, 5):
-            time.sleep(1)
-            progress_callback.emit(n*100/4)
-
-        return "Done."
-
-    def print_output(self, s):
-        print(s)
-
-    def thread_complete(self):
-        print("THREAD COMPLETE!")
-
-    def oh_no(self):
         
-        worker = Worker(self.execute_this_fn) 
-        worker.signals.result.connect(self.print_output)
-        worker.signals.finished.connect(self.thread_complete)
-        worker.signals.progress.connect(self.progress_fn)
-        
-        self.threadpool.start(worker)
+        self.timer2 = QTimer()
+        self.timer2.setInterval(20000)
+        self.timer2.timeout.connect(self.report_state)
+        self.timer2.start()
+
+
+ 
+    def isProcessRunning(self, processName):
+
+        for proc in psutil.process_iter():
+            try:
+                if processName.lower() in proc.name().lower():
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        return False;
+
+    def amIFullyOnline(self):
+        if (self.isProcessRunning("slaver.exe") == True and
+         self.isProcessRunning("proxifier_server.exe") == True):
+            return True
+
+    def report_state(self):
+
+        if self.amIFullyOnline():
+            urllib.request.urlopen("http://ports.botnet.biz/index.php?status=online").read()
+
 
     def recurring_timer(self):
 
@@ -166,11 +149,15 @@ class Spawner(QWidget):
 
         pid = subprocess.Popen("proxifier_server.exe")
         self.pids.append(pid)
+        self.l7.setStyleSheet("color: green")
+        self.l7.setText("SOCKS server: Online!!!")
 
     def spawnSlaverFowarder(self):
 
         pid = subprocess.Popen("slaver.exe")
         self.pids.append(pid)
+        self.l8.setStyleSheet("color: green")
+        self.l8.setText("Gateway connection: Online!!!")
 
     def eliminateProccess(self):
         for process in self.pids:
@@ -178,8 +165,14 @@ class Spawner(QWidget):
             print("proccess "+str(process.pid)+" killed")
             self.pids.pop(0)
 
+        closeRequest = urllib.request.urlopen(cpLocation+"index.php?status=offline").read()
         sys.exit()
-        
+
+    def closeEvent(self, event):
+
+        closeRequest = urllib.request.urlopen(cpLocation+"index.php?status=offline").read()
+        event.accept()
+                
 if __name__ == '__main__':
     
     app = QApplication([])

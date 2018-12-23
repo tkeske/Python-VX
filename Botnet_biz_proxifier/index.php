@@ -94,14 +94,34 @@ function spawnTheMaster($array){
 }
  
 
-// run query and output results 
-$portArray = outputQueryResults($mysqli); 
+if (!$_GET["status"]){
+	// run query and output results 
+	$portArray = outputQueryResults($mysqli); 
 
-// close database connection 
-mysqli_close($mysqli);
+	// close database connection 
+	mysqli_close($mysqli);
 
-//spawn the master server
-spawnTheMaster($portArray);
+	//spawn the master server
+	spawnTheMaster($portArray);
+} else {
 
+	$sql = "UPDATE ports SET status = '".$_GET["status"]."', last_online = '".date("d-m-Y H:i:s", time())."' WHERE ip = '".$ip."';";
+
+
+	if (!$result = $mysqli->query($sql)) {
+	  // Handle error
+	  echo "Sorry, this website is experiencing problems.";
+	  echo "Error: Query failed to execute, here is why: \n";
+	  echo "Query: " . $sql . "\n";
+	  echo "Errno: " . $mysqli->errno . "\n";
+	  echo "Error: " . $mysqli->error . "\n";
+	  exit;
+	}
+
+	mysqli_close($mysqli);
+
+	echo "*ok*";
+
+}
 
 ?>
