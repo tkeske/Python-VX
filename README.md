@@ -7,6 +7,7 @@ Software is provided AS IS WITHOUT ANY WARRANTY.
 
 Proxifier's reverse TCP tunnel code base is forked "aploium/shootback" python project from github.
 Exe Binder's code is forked from "d4rkcat/cryptbinder".
+MSIinstaller code is forked from "jpakkane/msicreator".
 
 Just to give credits to respective code authors.
 
