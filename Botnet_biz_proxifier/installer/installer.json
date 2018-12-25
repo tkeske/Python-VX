@@ -1,0 +1,20 @@
+{
+    "upgrade_guid": "2306069D-456E-4CA5-AA18-94805C18C5DF",
+    "version": "1.0.0",
+    "product_name": "Botnet.biz Proxifier",
+    "manufacturer": "Tomas Keske",
+    "name": "Botnet.biz Proxifier",
+    "name_base": "BotInstaller-testing-",
+    "comments": "Proxifier GUI application, socks5 server and gateway connector",
+    "installdir": "BOTNETbiz",
+    "license_file": "License.rtf",
+    "parts": [
+        {
+         "id": "FulllPackage",
+         "title": "Fullpackage",
+         "description": "Everything required to run the proxifier",
+         "absent": "disallow",
+         "staged_dir": "main"
+        }
+    ]
+}
