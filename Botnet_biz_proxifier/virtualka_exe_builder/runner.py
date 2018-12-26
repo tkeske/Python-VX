@@ -55,37 +55,35 @@ def runPyInstaller(fileName):
 	p = subprocess.Popen(["pyinstaller", "--onefile", os.path.join(os.getcwd()+"\\..\\", fileName)], stdout=sys.stdout)
 	p.wait()
 
-def runMsiInstaller(cwd):
+def runMsiInstaller(cwd, eVal):
 	os.chdir(os.path.join(cwd+"\\..\\", "installer"))
-	p = subprocess.Popen(["python", "msiinstaller.py",  "installer.json"], stdout=sys.stdout)
+	p = subprocess.Popen(["python", "msiinstaller.py",  "installer-"+eVal+".json"], stdout=sys.stdout)
 	p.wait()
 
 def changeInstallerConfig(eVal):
 	os.chdir(os.path.join(cwd+"\\..\\", "installer"))
 
 	print(os.getcwd())
-	installer = open("installer.json", "r+")
+	installer = open("installer.json", "r")
 
 	string = installer.read()
-	modified = string.replace("BotInstaller", "BotInstaller-"+eVal)
-	installer.seek(0)
-	installer.truncate(0)
-	installer.write(modified)
 	installer.close()
+	modified = string.replace("BotInstaller", "BotInstaller_"+eVal)
+	instEval = open("installer-"+eVal+".json", "w")
+	instEval.write(modified)
+	instEval.close()
 
-	return "BotInstaller-"+eVal+"-1.0.0-64.msi"
+
+	return "BotInstaller_"+eVal+"-1.0.0-64.msi"
 
 def copyInstallerToSharedFolder(installerName):
 	path = os.path.join(cwd+"\\..\\", "installer")
 	os.chdir(path)
-	copyfile(path+"\\installerName", ####TODO####)
-
-def windowsShutDown():
-	user32 = ctypes.WinDLL('user32')
-    user32.ExitWindowsEx(0x00000008, 0x00000000)
+	copyfile(path+"\\"+installerName, r"\\VBOXSVR\\downloads\\"+installerName)
 
 def cleanUp():
 	os.chdir(os.getcwd()+"..\\installer");
+	#TODO
 
 
 if __name__ == '__main__':
@@ -97,6 +95,6 @@ if __name__ == '__main__':
 	runPyInstaller(fileNameChanged)
 	copyfile(cwd+"\\dist\\proxifier_server"+eVal+".exe", cwd+"\\..\\installer\\main\\"+"proxifier_server"+eVal+".exe")
 	installerName = changeInstallerConfig(eVal)
-	runMsiInstaller(cwd)
+	runMsiInstaller(cwd, eVal)
 	copyInstallerToSharedFolder(installerName)
-	#windowsShutDown()
+	os.system('shutdown -s')
